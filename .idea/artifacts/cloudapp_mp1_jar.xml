@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="cloudapp-mp1:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/cloudapp_mp1_jar</output-path>
+    <root id="archive" name="cloudapp-mp1.jar">
+      <element id="module-output" name="cloudapp-mp1" />
+    </root>
+  </artifact>
+</component>
