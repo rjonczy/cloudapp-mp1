@@ -1,5 +1,7 @@
-import java.io.File;
-import java.lang.reflect.Array;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -25,6 +27,8 @@ public class MP1 {
         messageDigest.update(seed.toLowerCase().trim().getBytes());
         byte[] seedMD5 = messageDigest.digest();
 
+        int ile = seedMD5.length;
+
         long longSeed = 0;
         for (int i = 0; i < seedMD5.length; i++) {
             longSeed += ((long) seedMD5[i] & 0xffL) << (8 * i);
@@ -49,26 +53,107 @@ public class MP1 {
         this.inputFileName = inputFileName;
     }
 
+    //sort desc by Comparator
+    private static Map<String, Integer> sortByComparator(Map<String, Integer> unsortMap) {
+
+        // Convert Map to List
+        List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(unsortMap.entrySet());
+
+        // Sort list with comparator, to compare the Map values
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+
+                return (o2.getValue()).compareTo(o1.getValue());
+
+            }
+        });
+
+        // Convert sorted map back to a Map
+        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+        for (Iterator<Map.Entry<String, Integer>> it = list.iterator(); it.hasNext();) {
+            Map.Entry<String, Integer> entry = it.next();
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedMap;
+    }
+
+
+
     public String[] process() throws Exception {
+
         String[] ret = new String[20];
-       
-        //TODO
+        List<String> lines = new ArrayList<String>();
+        List<String> words = new ArrayList<String>();
+
+        Map<String, Integer> wordsCountMap = new HashMap<String, Integer>();
+
+        //read file into lines array
+        BufferedReader br = new BufferedReader(new FileReader(this.inputFileName));
+        String line;
+        while ((line = br.readLine()) != null) {
+            lines.add(line);
+        }
+
+        //get indexes and iterate thru
+        Integer[] indexes = this.getIndexes();
+
+        for (Integer index : indexes) {
+
+            //get line from
+            line = lines.get(index);
+
+            //lowercase and trim (remove any tailing and leading spaces)
+            line = line.toLowerCase().trim();
+            StringTokenizer st = new StringTokenizer(line, delimiters);
+
+            //add tokens/words to words list
+            String word;
+            while (st.hasMoreTokens()) {
+                word = st.nextToken();
+
+                //add word to words list if token doesn't exists in stopWordsArray
+                if(!Arrays.asList(stopWordsArray).contains(word)) {
+                    words.add(word);
+                    //check how many times word exists in map
+                    Integer count = wordsCountMap.get(word);
+                    if(count == null) {
+                        count = 0;
+                    }
+                    wordsCountMap.put(word, (count+1));
+
+                }
+            }
+
+        }
+
+        //sort map
+        Map<String, Integer> wordsCountSortedMap = sortByComparator(wordsCountMap);
+
+        int i = 0;
+        for (Map.Entry<String, Integer> entry : wordsCountSortedMap.entrySet()) {
+            if(i > ret.length - 1) break;
+            ret[i] = entry.getKey();
+            i++;
+        }
 
         return ret;
     }
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length < 1){
+        if (args.length < 0){
             System.out.println("MP1 <User ID>");
         }
         else {
             String userName = args[0];
             String inputFileName = "./input.txt";
+
             MP1 mp = new MP1(userName, inputFileName);
             String[] topItems = mp.process();
-            for (String item: topItems){
-                System.out.println(item);
+
+            for (String s : topItems) {
+                System.out.println(s);
             }
         }
     }
