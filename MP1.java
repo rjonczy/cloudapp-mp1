@@ -64,7 +64,13 @@ public class MP1 {
 
             public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
 
-                return (o2.getValue()).compareTo(o1.getValue());
+                int compResult = o2.getValue().compareTo(o1.getValue());
+
+                //if 2 keys have the same value than compare strings
+                if(compResult == 0)
+                    return o1.getKey().compareTo(o2.toString());
+
+                return compResult;
 
             }
         });
